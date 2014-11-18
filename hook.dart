@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert' show JSON;
 import 'dart:convert' show UTF8;
 
 void main() {
@@ -8,12 +9,15 @@ void main() {
             server.listen((HttpRequest request) {
                 var body = UTF8.decodeStream(request);
                 body.then((data) {
-                    var decoded = UTF8.decode(data);
+                    var decoded = JSON.decode(data);
                     if (decoded["hook_id"] == 3477553) {
-                       // Process.start("./start-server.sh", []);
                         print("is a hook");
+                        Process.start("./start-server.sh", []).then((Process process) {
+                          process.stdout
+                              .transform(UTF8.decoder)
+                              .listen((data) => print(data)); 
+                        });
                     }
-//                    print(data);
                     request.response.close();
                 });
             });
