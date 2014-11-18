@@ -22,3 +22,6 @@ pubspec.lock
 *.swp
 
 config.yaml
+
+client.pid
+server.pid
