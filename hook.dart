@@ -8,9 +8,15 @@ void main() {
         .then((HttpServer server) {
             print('listening on localhost, port ${server.port}');
             server.listen((HttpRequest request) {
-                var signature = request.headers.value("x-hub-signature");
-                var b = new HMAC(SHA1.newInstance(), signature);                
-                print(b);
+                String signature = request.headers.value("x-hub-signature");
+                var b = new HMAC(new SHA1(), UTF8.encode("lolol"));
+                UTF8.decodeStream(request).then((r) {
+                  b.add(UTF8.encode(r));
+                  var result = b.digest;
+                  print("sha1=$result");
+                });
+
+                print(signature);
 //                var body = UTF8.decodeStream(request);
 //                body.then((data) {
 //                    var decoded = JSON.decode(data);
@@ -19,7 +25,7 @@ void main() {
 //                        Process.start("./start-server.sh", []).then((Process process) {
 //                          process.stdout
 //                              .transform(UTF8.decoder)
-//                             .listen((data) => print(data)); 
+//                             .listen((data) => print(data));
 //                        });
 //                    }
                     request.response.close();
