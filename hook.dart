@@ -1,14 +1,16 @@
 import 'dart:io';
 import 'dart:convert' show JSON;
 import 'dart:convert' show UTF8;
+import 'package:crypto/crypto.dart' show SHA1, HMAC;
 
 void main() {
     HttpServer.bind("stacktrace.ca" , 3001)
         .then((HttpServer server) {
             print('listening on localhost, port ${server.port}');
             server.listen((HttpRequest request) {
-                var headers = request.responseHeaders;
-                print(headers);
+                var signature = request.headers.value("x-hub-signature");
+                var b = new HMAC(SHA1.newInstance(), signature);                
+                print(b);
 //                var body = UTF8.decodeStream(request);
 //                body.then((data) {
 //                    var decoded = JSON.decode(data);
