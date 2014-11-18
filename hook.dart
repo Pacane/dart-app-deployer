@@ -10,7 +10,7 @@ void main() {
                 var body = UTF8.decodeStream(request);
                 body.then((data) {
                     var decoded = JSON.decode(data);
-                    if (decoded["hook_id"] == 3477553) {
+                    if (decoded["repository"]["id"] == 26665190) {
                         print("is a hook");
                         Process.start("./start-server.sh", []).then((Process process) {
                           process.stdout
