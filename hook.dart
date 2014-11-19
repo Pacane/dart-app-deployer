@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'dart:convert' show JSON, UTF8, Encoding;
 import 'dart:convert' show UTF8;
-import 'package:crypto/crypto.dart' show SHA1, HMAC;
+import 'package:crypto/crypto.dart' show SHA1, HMAC, CryptoUtils;
 
 void main() {
-    HttpServer.bind("localhost" , 3001)
+    HttpServer.bind("stacktrace.ca" , 3001)
         .then((HttpServer server) {
             print('listening on localhost, port ${server.port}');
             server.listen((HttpRequest request) {
@@ -12,8 +12,10 @@ void main() {
                 var b = new HMAC(new SHA1(), UTF8.encode("lolol"));
                 request.listen((data) {
                   b.add(data);
-                  var result = UTF8.decode(b.digest);
-                  print("sha1=$result");
+                  var digest = b.close();
+
+                  var hash = CryptoUtils.bytesToHex(digest);
+                  print("sha1=$hash");
                 });
 
                 print(signature);
