@@ -20,8 +20,7 @@ void main() {
         sha.add(data);
         var digest = sha.close();
         var hash = CryptoUtils.bytesToHex(digest);
-
-        if (signature == hash) {
+        if (signature == "sha1=$hash") {
           Process.start("./start-server.sh", []).then((Process process) {
             process.stdout
             .transform(UTF8.decoder)
