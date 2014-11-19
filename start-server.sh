@@ -10,10 +10,7 @@ kill -9 $SERVER_PID
 
 echo "killing existing client"
 CLIENT_PID=$(head -n 1 client.pid)
-
 kill -9 $CLIENT_PID
-
-#sleep 5
 
 echo "Resetting master branch"
 (cd $POKER_PLANNING && git reset --hard pacane/master)
@@ -21,8 +18,6 @@ echo "Resetting master branch"
 
 echo "starting server"
 (cd $SERVER_PATH && pub upgrade && dart -c main.dart) &
-#sleep 5
-#(cd $SERVER_PATH && pub upgrade && dart -c main.dart) &
 
 echo "starting client"
 (cd $CLIENT_PATH && pub serve --port=3000 --hostname=stacktrace.ca --mode=release) &
