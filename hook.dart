@@ -40,7 +40,6 @@ void main() {
     });
   }).catchError((error) => print(error))
   .then((_) {
-    print("listening port is $listeningPort");
     HttpServer.bind("localhost", listeningPort)
     .then((HttpServer server) {
       print('listening on localhost, port ${server.port}');
