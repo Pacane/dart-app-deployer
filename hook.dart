@@ -6,17 +6,19 @@ import 'package:dart_config/default_server.dart';
 Process serverProcess;
 Process clientProcess;
 
-var listeningPort;
-var gitWorkingDir;
-var clientPath;
-var clientPort;
-var serverPath;
-var serverFileName;
-var gitTarget;
+String token;
 
 void main() {
   var env = Platform.environment;
-  var token = env["GITHUB_TOKEN"];
+  token = env["GITHUB_TOKEN"];
+
+  var listeningPort;
+  var gitWorkingDir;
+  var clientPath;
+  var clientPort;
+  var serverPath;
+  var serverFileName;
+  var gitTarget;
 
   if (token == null) {
     throw new Exception("GITHUB_TOKEN is not set in environment variables.");
@@ -36,50 +38,52 @@ void main() {
     checkNotNull.forEach((e) {
       if ((e) == null) throw new Exception("Missing config entry.");
     });
-  }).catchError((error) => print(error));
+  }).catchError((error) => print(error))
+  .then((_) {
+    print("listening port is $listeningPort");
+    HttpServer.bind("localhost", listeningPort)
+    .then((HttpServer server) {
+      print('listening on localhost, port ${server.port}');
+      server.listen((HttpRequest request) {
+        String signature = request.headers.value("x-hub-signature");
+        var sha = new HMAC(new SHA1(), UTF8.encode(token));
+        request.listen((data) {
+          sha.add(data);
+          var digest = sha.close();
+          var hash = CryptoUtils.bytesToHex(digest);
+          if (signature == "sha1=$hash") {
+            if (serverProcess != null) {
+              print("killing server");
+              serverProcess.kill();
+            }
 
-  HttpServer.bind("localhost", listeningPort)
-  .then((HttpServer server) {
-    print('listening on localhost, port ${server.port}');
-    server.listen((HttpRequest request) {
-      String signature = request.headers.value("x-hub-signature");
-      var sha = new HMAC(new SHA1(), UTF8.encode(token));
-      request.listen((data) {
-        sha.add(data);
-        var digest = sha.close();
-        var hash = CryptoUtils.bytesToHex(digest);
-        if (signature == "sha1=$hash") {
-          if (serverProcess != null) {
-            print("killing server");
-            serverProcess.kill();
+            if (clientProcess != null) {
+              print("killing client");
+              clientProcess.kill();
+            }
+
+            print("Resetting branch");
+            ProcessResult result = Process.runSync("bash", ["-c", "git pull && git reset --hard $gitTarget"], workingDirectory: gitWorkingDir);
+            print(result.stdout);
+
+            print("Starting server");
+            Process.start("bash", ["-c", "dart $serverFileName"], workingDirectory : serverPath).then((Process process) {
+              serverProcess = process;
+              process.stdout.transform(UTF8.decoder).listen((data) => print(data));
+              process.stderr.transform(UTF8.decoder).listen((data) => print(data));
+            });
+
+            print("Starting client");
+            Process.start("bash", ["-c", "pub serve --port $clientPort --mode=release"], workingDirectory : clientPath).then((Process process) {
+              clientProcess = process;
+              process.stdout.transform(UTF8.decoder).listen((data) => print(data));
+              process.stderr.transform(UTF8.decoder).listen((data) => print(data));
+            });
           }
+        });
 
-          if (clientProcess != null) {
-            print("killing client");
-            clientProcess.kill();
-          }
-
-          print("Resetting branch");
-          ProcessResult result = Process.runSync("bash", ["-c", "git pull && git reset --hard $gitTarget"], workingDirectory: gitWorkingDir);
-          print(result.stdout);
-
-          print("Starting server");
-          Process.start("bash", ["-c", "dart $serverFileName"], workingDirectory : serverPath).then((Process process) {
-            serverProcess = process;
-            process.stdout.transform(UTF8.decoder).listen((data) => print(data));
-            process.stderr.transform(UTF8.decoder).listen((data) => print(data));
-          });
-
-          print("Starting client");
-          Process.start("bash", ["-c", "pub serve --port $clientPort --mode=release"], workingDirectory : clientPath).then((Process process) {
-            clientProcess = process;
-            process.stdout.transform(UTF8.decoder).listen((data) => print(data));
-            process.stderr.transform(UTF8.decoder).listen((data) => print(data));
-          });
-        }
+        request.response.close();
       });
-
-      request.response.close();
-    });
-  }).catchError((e) => print(e.toString()));
+    }).catchError((e) => print(e.toString()));
+  });
 }
