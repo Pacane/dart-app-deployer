@@ -7,9 +7,14 @@ Process serverProcess;
 
 String token;
 
-showLogs(Process process) {
+void showLogs(Process process) {
   process.stdout.transform(UTF8.decoder).listen((data) => print(data));
   process.stderr.transform(UTF8.decoder).listen((data) => print(data));
+}
+
+void showLogsSync(ProcessResult syncProcessResult) {
+  print(buildResult.stderr);
+  print(buildResult.stdout);
 }
 
 void main() {
@@ -63,8 +68,8 @@ void main() {
             }
 
             print("Resetting branch");
-            ProcessResult result = Process.runSync("bash", ["-c", "git pull && git reset --hard $gitTarget"], workingDirectory: gitWorkingDir);
-            print(result.stdout);
+            ProcessResult gitCleanResult = Process.runSync("bash", ["-c", "git pull && git reset --hard $gitTarget"], workingDirectory: gitWorkingDir);
+            showLogsSync(gitCleanResult);
 
             print("Starting server");
             Process.start("bash", ["-c", "dart $serverFileName"], workingDirectory : serverPath).then((Process process) {
@@ -73,13 +78,17 @@ void main() {
             });
 
             print("Deploying client");
-            Process.start("bash", ["-c", "pub build"], workingDirectory : clientPath).then((Process process) => showLogs(process))
-            .then((_) => Process.start("bash", ["-c", "rm -rf $websitePath/* -r"])).then((copyProcess) => showLogs(copyProcess))
-            .then((_) => Process.start("bash", ["-c", "cp $clientPath/build/web/* $websitePath -r"])).then((copyProcess) => showLogs(copyProcess));
-          }
-        });
+            ProcessResult buildResult = Process.runSync("bash", ["-c", "pub build"], workingDirectory : clientPath);
+            showLogsSync(buildResult);
 
-        request.response.close();
+            ProcessResult cleanResult = Process.runSync("bash", ["-c", "rm -rf $websitePath/* -r"]);
+            showLogsSync(cleanResult);
+            ProcessResult copyResult = Process.runSync("bash", ["-c", "cp $clientPath/build/web/* $websitePath -r"]);
+            showLogsSync(copyResult);
+          }
+
+          request.response.close();
+        });
       });
     }).catchError((e) => print(e.toString()));
   });
