@@ -13,8 +13,8 @@ void showLogs(Process process) {
 }
 
 void showLogsSync(ProcessResult syncProcessResult) {
-  print(buildResult.stderr);
-  print(buildResult.stdout);
+  print(syncProcessResult.stderr);
+  print(syncProcessResult.stdout);
 }
 
 void main() {
