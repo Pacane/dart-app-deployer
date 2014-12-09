@@ -74,8 +74,8 @@ void main() {
 
             print("Deploying client");
             Process.start("bash", ["-c", "pub build"], workingDirectory : clientPath).then((Process process) => showLogs(process))
-            .then((_) => Process.start("rm -rf $websitePath/* -r", [])).then((copyProcess) => showLogs(copyProcess))
-            .then((_) => Process.start("cp $clientPath/build/web/* $websitePath -r", [])).then((copyProcess) => showLogs(copyProcess));
+            .then((_) => Process.start("bash", ["-c", "rm -rf $websitePath/* -r"])).then((copyProcess) => showLogs(copyProcess))
+            .then((_) => Process.start("bash", ["-c", "cp $clientPath/build/web/* $websitePath -r"])).then((copyProcess) => showLogs(copyProcess));
           }
         });
 
