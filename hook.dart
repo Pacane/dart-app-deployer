@@ -17,6 +17,13 @@ void showLogsSync(ProcessResult syncProcessResult) {
   print(syncProcessResult.stdout);
 }
 
+killServerProcess() {
+  if (serverProcess != null) {
+    print("killing server");
+    serverProcess.kill();
+  }
+}
+
 void main() {
   var env = Platform.environment;
   token = env["GITHUB_TOKEN"];
@@ -62,10 +69,9 @@ void main() {
           var digest = sha.close();
           var hash = CryptoUtils.bytesToHex(digest);
           if (signature == "sha1=$hash") {
-            if (serverProcess != null) {
-              print("killing server");
-              serverProcess.kill();
-            }
+            request.response.close();
+
+            killServerProcess();
 
             print("Resetting branch");
             ProcessResult gitCleanResult = Process.runSync("bash", ["-c", "git pull && git reset --hard $gitTarget"], workingDirectory: gitWorkingDir);
@@ -92,4 +98,5 @@ void main() {
       });
     }).catchError((e) => print(e.toString()));
   });
+  killServerProcess();
 }
