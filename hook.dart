@@ -15,6 +15,7 @@ void main() {
   var listeningPort;
   var gitWorkingDir;
   var clientPath;
+  var clientHostname;
   var clientPort;
   var serverPath;
   var serverFileName;
@@ -34,13 +35,15 @@ void main() {
     serverPath = config["serverPath"];
     serverFileName = config["serverFileName"];
     gitTarget = config["gitTarget"];
-    checkNotNull = [listeningPort, gitWorkingDir, clientPath, clientPort, serverPath, serverFileName, gitTarget];
+    clientHostname = config["clientHostname"];
+    checkNotNull = [listeningPort, gitWorkingDir, clientPath, clientHostname, clientPort, serverPath, serverFileName, gitTarget];
     checkNotNull.forEach((e) {
       if ((e) == null) throw new Exception("Missing config entry.");
     });
   }).catchError((error) => print(error))
   .then((_) {
-    HttpServer.bind("localhost", listeningPort)
+    print("listening port is $listeningPort");
+    HttpServer.bind(clientHostname, listeningPort)
     .then((HttpServer server) {
       print('listening on localhost, port ${server.port}');
       server.listen((HttpRequest request) {
@@ -73,7 +76,7 @@ void main() {
             });
 
             print("Starting client");
-            Process.start("bash", ["-c", "pub serve --port $clientPort --mode=release"], workingDirectory : clientPath).then((Process process) {
+            Process.start("bash", ["-c", "pub serve --hostname=$clientHostname --port $clientPort --mode=release"], workingDirectory : clientPath).then((Process process) {
               clientProcess = process;
               process.stdout.transform(UTF8.decoder).listen((data) => print(data));
               process.stderr.transform(UTF8.decoder).listen((data) => print(data));
