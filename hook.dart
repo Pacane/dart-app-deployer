@@ -4,9 +4,13 @@ import 'package:crypto/crypto.dart' show SHA1, HMAC, CryptoUtils;
 import 'package:dart_config/default_server.dart';
 
 Process serverProcess;
-Process clientProcess;
 
 String token;
+
+showLogs(Process process) {
+  process.stdout.transform(UTF8.decoder).listen((data) => print(data));
+  process.stderr.transform(UTF8.decoder).listen((data) => print(data));
+}
 
 void main() {
   var env = Platform.environment;
@@ -16,7 +20,7 @@ void main() {
   var gitWorkingDir;
   var clientPath;
   var clientHostname;
-  var clientPort;
+  var websitePath;
   var serverPath;
   var serverFileName;
   var gitTarget;
@@ -31,12 +35,12 @@ void main() {
     listeningPort = config["listeningPort"];
     gitWorkingDir = config["gitWorkingDir"];
     clientPath = config["clientPath"];
-    clientPort = config["clientPort"];
+    websitePath = config["websitePath"];
     serverPath = config["serverPath"];
     serverFileName = config["serverFileName"];
     gitTarget = config["gitTarget"];
     clientHostname = config["clientHostname"];
-    checkNotNull = [listeningPort, gitWorkingDir, clientPath, clientHostname, clientPort, serverPath, serverFileName, gitTarget];
+    checkNotNull = [listeningPort, gitWorkingDir, clientPath, clientHostname, websitePath, serverPath, serverFileName, gitTarget];
     checkNotNull.forEach((e) {
       if ((e) == null) throw new Exception("Missing config entry.");
     });
@@ -58,11 +62,6 @@ void main() {
               serverProcess.kill();
             }
 
-            if (clientProcess != null) {
-              print("killing client");
-              clientProcess.kill();
-            }
-
             print("Resetting branch");
             ProcessResult result = Process.runSync("bash", ["-c", "git pull && git reset --hard $gitTarget"], workingDirectory: gitWorkingDir);
             print(result.stdout);
@@ -70,16 +69,13 @@ void main() {
             print("Starting server");
             Process.start("bash", ["-c", "dart $serverFileName"], workingDirectory : serverPath).then((Process process) {
               serverProcess = process;
-              process.stdout.transform(UTF8.decoder).listen((data) => print(data));
-              process.stderr.transform(UTF8.decoder).listen((data) => print(data));
+              showLogs(process);
             });
 
-            print("Starting client");
-            Process.start("bash", ["-c", "pub serve --hostname=$clientHostname --port $clientPort --mode=release"], workingDirectory : clientPath).then((Process process) {
-              clientProcess = process;
-              process.stdout.transform(UTF8.decoder).listen((data) => print(data));
-              process.stderr.transform(UTF8.decoder).listen((data) => print(data));
-            });
+            print("Deploying client");
+            Process.start("bash", ["-c", "pub build"], workingDirectory : clientPath).then((Process process) => showLogs(process))
+            .then((_) => Process.start("rm -rf $websitePath/* -r", [])).then((copyProcess) => showLogs(copyProcess))
+            .then((_) => Process.start("cp $clientPath/build/web/* $websitePath -r", [])).then((copyProcess) => showLogs(copyProcess));
           }
         });
 
