@@ -1,9 +1,18 @@
 import 'dart:io';
 import 'dart:convert' show UTF8;
 import 'package:crypto/crypto.dart' show SHA1, HMAC, CryptoUtils;
+import 'package:dart_config/default_server.dart';
 
 Process serverProcess;
 Process clientProcess;
+
+var listeningPort;
+var gitWorkingDir;
+var clientPath;
+var clientPort;
+var serverPath;
+var serverFileName;
+var gitTarget;
 
 void main() {
   var env = Platform.environment;
@@ -13,7 +22,23 @@ void main() {
     throw new Exception("GITHUB_TOKEN is not set in environment variables.");
   }
 
-  HttpServer.bind("localhost", 3002)
+  loadConfig()
+  .then((Map config) {
+    var checkNotNull = [];
+    listeningPort = config["listeningPort"];
+    gitWorkingDir = config["gitWorkingDir"];
+    clientPath = config["clientPath"];
+    clientPort = config["clientPort"];
+    serverPath = config["serverPath"];
+    serverFileName = config["serverFileName"];
+    gitTarget = config["gitTarget"];
+    checkNotNull = [listeningPort, gitWorkingDir, clientPath, clientPort, serverPath, serverFileName, gitTarget];
+    checkNotNull.forEach((e) {
+      if ((e) == null) throw new Exception("Missing config entry.");
+    });
+  }).catchError((error) => print(error));
+
+  HttpServer.bind("localhost", listeningPort)
   .then((HttpServer server) {
     print('listening on localhost, port ${server.port}');
     server.listen((HttpRequest request) {
@@ -35,18 +60,18 @@ void main() {
           }
 
           print("Resetting branch");
-          ProcessResult result = Process.runSync("bash", ["-c", "git pull && git reset --hard origin/master"], workingDirectory: "/home/joel/code/dart/PokerPlanning");
+          ProcessResult result = Process.runSync("bash", ["-c", "git pull && git reset --hard $gitTarget"], workingDirectory: gitWorkingDir);
           print(result.stdout);
 
           print("Starting server");
-          Process.start("bash", ["-c", "dart main.dart"], workingDirectory : "/home/joel/code/dart/PokerPlanning/PokerPlanningServer").then((Process process) {
+          Process.start("bash", ["-c", "dart $serverFileName"], workingDirectory : serverPath).then((Process process) {
             serverProcess = process;
             process.stdout.transform(UTF8.decoder).listen((data) => print(data));
             process.stderr.transform(UTF8.decoder).listen((data) => print(data));
           });
 
           print("Starting client");
-          Process.start("bash", ["-c", "pub serve --port 3000 --mode=release"], workingDirectory : "/home/joel/code/dart/PokerPlanning/PokerPlanningClient").then((Process process) {
+          Process.start("bash", ["-c", "pub serve --port $clientPort --mode=release"], workingDirectory : clientPath).then((Process process) {
             clientProcess = process;
             process.stdout.transform(UTF8.decoder).listen((data) => print(data));
             process.stderr.transform(UTF8.decoder).listen((data) => print(data));
