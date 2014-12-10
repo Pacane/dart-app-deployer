@@ -13,7 +13,6 @@ class ProjectDeployer {
   Process serverProcess;
 
   ProjectDeployer(this.config) {
-    print("In project deployer");
     clientPath = config["clientPath"];
     gitTarget = config["gitTarget"];
     gitWorkingDir = config["gitWorkingDir"];
