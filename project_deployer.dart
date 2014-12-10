@@ -15,7 +15,7 @@ class ProjectDeployer {
     showLogs(cleaningProcess);
   }
 
-  void deployClient() async {
+  Future deployClient() async {
     await buildWebsite();
     await removeOldWebsiteFiles();
     await deployNewSite();
@@ -40,7 +40,7 @@ class ProjectDeployer {
     websitePath = config["websitePath"];
   }
 
-  void resetAndPullBranch() async {
+  Future resetAndPullBranch() async {
     print("Resetting branch");
     Process gitCleanResult = await Process.start("bash", ["-c", "git pull && git reset --hard $gitTarget"], workingDirectory: gitWorkingDir);
     showLogs(gitCleanResult);
@@ -51,7 +51,7 @@ class ProjectDeployer {
     process.stderr.transform(UTF8.decoder).listen((data) => print(data));
   }
 
-  void buildWebsite() async {
+  Future buildWebsite() async {
     Process process = await Process.start("bash", ["-c", "pub build"], workingDirectory : clientPath);
     showLogs(process);
   }
