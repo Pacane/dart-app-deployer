@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:convert' show UTF8, JSON;
-import 'dart:async';
 import 'package:crypto/crypto.dart' show SHA1, HMAC, CryptoUtils;
 import 'package:dart_config/default_server.dart';
 
@@ -71,7 +70,7 @@ void main() {
           var hash = CryptoUtils.bytesToHex(digest);
           if (signature == "sha1=$hash") {
             request.response.close();
-
+            
             var json = JSON.decode(new String.fromCharCodes(data));
             if (json['ref'] != 'refs/heads/master') {
               return;
@@ -92,11 +91,8 @@ void main() {
             });
 
             print("Deploying client");
-            Process.start("bash", ["-c", "pub build"], workingDirectory : clientPath).then((buildProcess) {
-              var workingTimer = new Timer.periodic(new Duration(seconds: 1), (_) => print(". "));
-              showLogs(buildProcess);
-              workingTimer.cancel();
-            });
+            ProcessResult buildResult = Process.runSync("bash", ["-c", "pub build"], workingDirectory : clientPath);
+            showLogsSync(buildResult);
 
             ProcessResult cleanResult = Process.runSync("bash", ["-c", "rm -rf $websitePath/* -r"]);
             showLogsSync(cleanResult);
