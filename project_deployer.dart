@@ -24,8 +24,8 @@ class ProjectDeployer {
 
   Future resetAndPullBranch() {
     print("Resetting branch");
-    return Process.start("bash", ["-c", "git pull && git reset --hard $gitTarget"], workingDirectory: gitWorkingDir)
-    .then((process) => showLogs(process));
+    return Process.run("bash", ["-c", "git pull && git reset --hard $gitTarget"], workingDirectory: gitWorkingDir)
+    .then((process) => showLogsForProcessResult(process));
   }
 
   void showLogs(Process process) {
