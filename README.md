@@ -15,7 +15,7 @@ To use this project as it is right now, you have to :
 (replace the values with your actual configuration, this is an example configuration)
 
 ```yaml
-listeningPort: 3000
+listeningPort: portThatTheDaemonWillListenOnto (ie: 3000)
 gitWorkingDir: /path/to/the/git/directory/of/your/project
 clientPath: /path/to/the/client/directory
 websitePath: /path/of/deployment
