@@ -15,10 +15,10 @@ class ProjectDeployer {
     showLogs(cleaningProcess);
   }
 
-  Future deployClient() async {
-    await buildWebsite();
-    await removeOldWebsiteFiles();
-    await deployNewSite();
+  void deployClient() {
+    buildWebsite();
+    removeOldWebsiteFiles();
+    deployNewSite();
   }
 
   Map config;
