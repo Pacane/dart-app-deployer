@@ -14,9 +14,7 @@ class ProjectDeployer {
   }
 
   deployClient() async {
-    await buildWebsite();
-    await removeOldWebsiteFiles();
-    await deployNewSite();
+    buildWebsite().whenComplete(() => removeOldWebsiteFiles().whenComplete(() => deployClient()));
   }
 
   Map config;
