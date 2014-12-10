@@ -39,7 +39,7 @@ class ProjectDeployer {
 
   Future buildWebsite() {
     print("Building website");
-    return Process.run("bash", ["-c", "pub build"], workingDirectory : clientPath).then((process) => showLogsForProcessResult(process));
+    return Process.run("bash", ["-c", "pub build --mode=release"], workingDirectory : clientPath).then((process) => showLogsForProcessResult(process));
   }
 
   void killServerProcess() {
