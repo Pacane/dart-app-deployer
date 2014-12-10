@@ -92,19 +92,24 @@ void main() {
             });
 
             print("Deploying client");
+            var workingTimer;
             Process.start("bash", ["-c", "pub build"], workingDirectory : clientPath).then((buildProcess) {
-              var workingTimer = new Timer.periodic(new Duration(seconds: 1), (_) => print(". "));
+              workingTimer = new Timer.periodic(new Duration(seconds: 1), (_) => print(". "));
               showLogs(buildProcess);
               workingTimer.cancel();
+            })
+            .then((_) => workingTimer.cancel())
+            .then((_) {
+              Process.start("bash", ["-c", "rm -rf $websitePath/* -r"]).then((cleanProcess) {
+                showLogs(cleanProcess);
+              });
+            })
+            .then((_) {
+              Process.start("bash", ["-c", "cp $clientPath/build/web/* $websitePath -r"]).then((copyProcess) {
+                showLogs(copyProcess);
+              });
             });
-
-            ProcessResult cleanResult = Process.runSync("bash", ["-c", "rm -rf $websitePath/* -r"]);
-            showLogsSync(cleanResult);
-            ProcessResult copyResult = Process.runSync("bash", ["-c", "cp $clientPath/build/web/* $websitePath -r"]);
-            showLogsSync(copyResult);
           }
-
-          request.response.close();
         });
       });
     }).catchError((e) => print(e.toString()));
