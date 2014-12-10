@@ -4,4 +4,3 @@ description: A daemon that listens to GitHub push webhook and that auto-redeploy
 dependencies:
   crypto: '>=0.9.0 <0.10.0'
   dart_config: any
-  mock: ">=0.11.0+2 <0.12.0"

@@ -2,7 +2,6 @@ library github_hook_listener;
 
 import 'dart:io';
 import 'dart:convert' show UTF8, JSON;
-import 'dart:async';
 import 'package:crypto/crypto.dart' show SHA1, HMAC, CryptoUtils;
 import 'environment_checker.dart';
 import 'project_deployer.dart';

@@ -5,8 +5,6 @@ import 'environment_checker.dart';
 import 'config_loader.dart';
 import 'github_hook_listener.dart';
 import 'project_deployer.dart';
-import 'package:mock/mock.dart';
-import 'dart:async';
 
 main() async {
   ConfigLoader configLoader = new ConfigLoader();
