@@ -3,19 +3,20 @@ import 'dart:convert' show UTF8;
 import 'dart:async';
 
 class ProjectDeployer {
-  void deployNewSite() {
-    Process.start("bash", ["-c", "cp $clientPath/build/web/* $websitePath -r"]).then((process) => showLogs(process));
+  Future deployNewSite() {
+    print("Deploying new site");
+    return Process.start("bash", ["-c", "cp $clientPath/build/web/* $websitePath -r"]).then((process) => showLogs(process));
   }
 
-  void removeOldWebsiteFiles() {
+  Future removeOldWebsiteFiles() {
     print("Removing old website files");
-    Process.start("bash", ["-c", "rm -rf $websitePath/* -r"]).then((process) => showLogs(process));
+    return Process.start("bash", ["-c", "rm -rf $websitePath/* -r"]).then((process) => showLogs(process));
   }
 
-  void deployClient() {
-    buildWebsite();
-    removeOldWebsiteFiles();
-    deployNewSite();
+  deployClient() async {
+    await buildWebsite();
+    await removeOldWebsiteFiles();
+    await deployNewSite();
   }
 
   Map config;
@@ -37,9 +38,9 @@ class ProjectDeployer {
     websitePath = config["websitePath"];
   }
 
-  void resetAndPullBranch() {
+  Future resetAndPullBranch() {
     print("Resetting branch");
-    Process.start("bash", ["-c", "git pull && git reset --hard $gitTarget"], workingDirectory: gitWorkingDir)
+    return Process.start("bash", ["-c", "git pull && git reset --hard $gitTarget"], workingDirectory: gitWorkingDir)
     .then((process) => showLogs(process));
   }
 
@@ -48,8 +49,9 @@ class ProjectDeployer {
     process.stderr.transform(UTF8.decoder).listen((data) => print(data));
   }
 
-  void buildWebsite() {
-    Process.start("bash", ["-c", "pub build"], workingDirectory : clientPath).then((process) => showLogs(process));
+  Future buildWebsite() {
+    print("Building website");
+    return Process.start("bash", ["-c", "pub build"], workingDirectory : clientPath).then((process) => showLogs(process));
   }
 
   void killServerProcess() {
@@ -59,11 +61,11 @@ class ProjectDeployer {
     }
   }
 
-  void startServer() {
+  Future startServer() {
     killServerProcess();
 
     print("Starting server");
-    Process.start("bash", ["-c", "dart $serverFileName"], workingDirectory : serverPath).then((Process process) {
+    return Process.start("bash", ["-c", "dart $serverFileName"], workingDirectory : serverPath).then((Process process) {
       serverProcess = process;
       showLogs(process);
     });

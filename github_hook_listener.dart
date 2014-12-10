@@ -37,9 +37,9 @@ class GithubHookListener {
         var payload = JSON.decode(new String.fromCharCodes(data));
         if (wasPushOnMaster(payload['ref'])) {
           print("Hooked on push on master");
-          deployer.resetAndPullBranch();
-          deployer.startServer();
-          deployer.deployClient();
+          deployer.resetAndPullBranch()
+          .then((_) => deployer.startServer())
+          .then((_) => deployer.deployClient());
         }
       });
     });
