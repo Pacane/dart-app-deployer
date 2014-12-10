@@ -3,16 +3,13 @@ import 'dart:convert' show UTF8;
 import 'dart:async';
 
 class ProjectDeployer {
-  void deployNewSite() async {
-    Process copyProcess = await Process.start("bash", ["-c", "cp $clientPath/build/web/* $websitePath -r"]);
-    showLogs(copyProcess);
+  void deployNewSite() {
+    Process.start("bash", ["-c", "cp $clientPath/build/web/* $websitePath -r"]).then((process) => showLogs(process));
   }
 
-  void removeOldWebsiteFiles() async {
+  void removeOldWebsiteFiles() {
     print("Removing old website files");
-
-    Process cleaningProcess = await Process.start("bash", ["-c", "rm -rf $websitePath/* -r"]);
-    showLogs(cleaningProcess);
+    Process.start("bash", ["-c", "rm -rf $websitePath/* -r"]).then((process) => showLogs(process));
   }
 
   void deployClient() {
