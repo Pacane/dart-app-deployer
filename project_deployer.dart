@@ -40,10 +40,10 @@ class ProjectDeployer {
     websitePath = config["websitePath"];
   }
 
-  Future resetAndPullBranch() async {
+  void resetAndPullBranch() {
     print("Resetting branch");
-    Process gitCleanResult = await Process.start("bash", ["-c", "git pull && git reset --hard $gitTarget"], workingDirectory: gitWorkingDir);
-    showLogs(gitCleanResult);
+    Process.start("bash", ["-c", "git pull && git reset --hard $gitTarget"], workingDirectory: gitWorkingDir)
+    .then((process) => showLogs(process));
   }
 
   void showLogs(Process process) {
@@ -51,9 +51,8 @@ class ProjectDeployer {
     process.stderr.transform(UTF8.decoder).listen((data) => print(data));
   }
 
-  Future buildWebsite() async {
-    Process process = await Process.start("bash", ["-c", "pub build"], workingDirectory : clientPath);
-    showLogs(process);
+  void buildWebsite() {
+    Process.start("bash", ["-c", "pub build"], workingDirectory : clientPath).then((process) => showLogs(process));
   }
 
   void killServerProcess() {
