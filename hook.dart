@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'dart:convert' show UTF8;
+import 'dart:convert' show UTF8, JSON;
 import 'package:crypto/crypto.dart' show SHA1, HMAC, CryptoUtils;
 import 'package:dart_config/default_server.dart';
 
@@ -70,6 +70,13 @@ void main() {
           var hash = CryptoUtils.bytesToHex(digest);
           if (signature == "sha1=$hash") {
             request.response.close();
+            
+            var json = JSON.decode(new String.fromCharCodes(data));
+            if (json['ref'] != 'refs/heads/master') {
+              return;
+            } else {
+              print("Hooked on push on master");
+            }
 
             killServerProcess();
 
