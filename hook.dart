@@ -92,13 +92,9 @@ void main() {
             });
 
             print("Deploying client");
-            var workingTimer;
             Process.start("bash", ["-c", "pub build"], workingDirectory : clientPath).then((buildProcess) {
-              workingTimer = new Timer.periodic(new Duration(seconds: 1), (_) => print(". "));
               showLogs(buildProcess);
-              workingTimer.cancel();
             })
-            .then((_) => workingTimer.cancel())
             .then((_) {
               Process.start("bash", ["-c", "rm -rf $websitePath/* -r"]).then((cleanProcess) {
                 showLogs(cleanProcess);
