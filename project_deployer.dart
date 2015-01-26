@@ -23,7 +23,7 @@ class ProjectDeployer {
 
   Future resetAndPullBranch() {
     print("Resetting branch");
-    return Process.run("bash", ["-c", "git pull && git reset --hard $gitTarget"], workingDirectory: gitWorkingDir)
+    return Process.run("bash", ["-c", "git pull && git reset --hard origin/$gitTarget"], workingDirectory: gitWorkingDir)
     .then((process) => showLogsForProcessResult(process));
   }
 

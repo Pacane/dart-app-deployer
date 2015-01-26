@@ -10,8 +10,11 @@ class GithubHookListener {
   EnvironmentChecker environmentChecker;
   Map config;
   ProjectDeployer deployer;
+  String targetBranch;
 
-  GithubHookListener(this.environmentChecker, this.config, this.deployer);
+  GithubHookListener(this.environmentChecker, this.config, this.deployer) {
+    targetBranch = config["gitTarget"];
+  }
 
   bool xHubSignatureFitsOurs(String signature, data) {
     var sha = new HMAC(new SHA1(), UTF8.encode(environmentChecker.githubToken));
@@ -21,7 +24,7 @@ class GithubHookListener {
     return signature == "sha1=$hash";
   }
 
-  bool wasPushOnMaster(String ref) => ref == 'refs/heads/master';
+  bool wasPushOnMaster(String ref) => ref == 'refs/heads/$targetBranch';
 
   listen() async {
     HttpServer server = await HttpServer.bind(config["clientHostname"], config["listeningPort"]);
@@ -35,7 +38,7 @@ class GithubHookListener {
 
         var payload = JSON.decode(new String.fromCharCodes(data));
         if (wasPushOnMaster(payload['ref'])) {
-          print("Hooked on push on master");
+          print("Hooked on push on $targetBranch");
           deployer.resetAndPullBranch()
           .then((_) => deployer.startServer())
           .then((_) => deployer.deployClient());
