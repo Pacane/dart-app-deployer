@@ -49,6 +49,10 @@ class ProjectDeployer {
     }
   }
 
+  Future upgradeServerDependencies() {
+    return Process.run("bash", ["pub upgrade"], workingDirectory: serverPath).then((process) => showLogsForProcessResult(process));
+  }
+
   Future startServer() {
     killServerProcess();
 
