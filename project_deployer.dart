@@ -45,7 +45,7 @@ class ProjectDeployer {
 
   Future buildWebsite() {
     print("Building website");
-    return Process.run("pub", ['build --mode=release'], workingDirectory : clientPath).then((process){
+    return Process.run("pub", ['build --mode=release'], workingDirectory : clientPath, runInShell: true).then((process){
       showLogsForProcessResult(process);
       print(process.exitCode);
     });
