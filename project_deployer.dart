@@ -45,7 +45,10 @@ class ProjectDeployer {
 
   Future buildWebsite() {
     print("Building website");
-    return Process.run("/home/joel/apps/dart-sdk/bin/pub", ['build --mode=release'], workingDirectory : clientPath).then((process) => showLogsForProcessResult(process));
+    return Process.run("pub", ['build --mode=release'], workingDirectory : clientPath).then((process){
+      showLogsForProcessResult(process);
+      print(process.exitCode);
+    });
   }
 
   void killServerProcess() {
