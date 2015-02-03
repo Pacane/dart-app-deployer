@@ -45,7 +45,7 @@ class ProjectDeployer {
 
   Future buildWebsite() {
     print("Building website");
-    return Process.run("pub", ['build', '--mode=release'], workingDirectory : clientPath, runInShell: true).then((process) => showLogsForProcessResult(process));
+    return Process.run("pub", ['build', '--mode=release'], workingDirectory : clientPath).then((process) => showLogsForProcessResult(process));
   }
 
   void killServerProcess() {
@@ -56,7 +56,7 @@ class ProjectDeployer {
   }
 
   Future upgradeServerDependencies() {
-    return Process.run("pub", ['upgrade'], workingDirectory: serverPath, runInShell: true).then((process) => showLogsForProcessResult(process));
+    return Process.run("pub", ['upgrade'], workingDirectory: serverPath).then((process) => showLogsForProcessResult(process));
   }
 
   Future startServer() {
