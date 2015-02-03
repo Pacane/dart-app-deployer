@@ -21,9 +21,15 @@ class ProjectDeployer {
     websitePath = config["websitePath"];
   }
 
-  Future resetAndPullBranch() {
+  Future gitPull() {
+    print("Pulling changes");
+    return Process.run("git", ['pull'], workingDirectory: gitWorkingDir)
+    .then((process) => showLogsForProcessResult(process));
+  }
+
+  Future gitReset() {
     print("Resetting branch");
-    return Process.run("bash", ["-c", "git pull && git reset --hard origin/$gitTarget"], workingDirectory: gitWorkingDir)
+    return Process.run("git", ['reset --hard origin/$gitTarget'], workingDirectory: gitWorkingDir)
     .then((process) => showLogsForProcessResult(process));
   }
 

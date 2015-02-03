@@ -39,10 +39,11 @@ class GithubHookListener {
         var payload = JSON.decode(new String.fromCharCodes(data));
         if (wasPushOnMaster(payload['ref'])) {
           print("Hooked on push on $targetBranch");
-          deployer.resetAndPullBranch()
+          deployer.gitPull().then((_) => deployer.gitReset()
           .then((_) => deployer.upgradeServerDependencies())
           .then((_) => deployer.startServer())
-          .then((_) => deployer.deployClient());
+          .then((_) => deployer.deployClient())
+          );
         }
       });
     });
