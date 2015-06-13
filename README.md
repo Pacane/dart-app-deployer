@@ -22,6 +22,7 @@ websitePath: /path/of/deployment
 serverPath: /path/to/the/server/directory
 serverFileName: main.dart
 gitTarget: origin/master
+clientHostname: 0.0.0.0
 ```
 * Create a [Webhook](https://developer.github.com/webhooks/creating/) in your github repository that sends you push information.
 * Create an environment variable named `GITHUB_TOKEN` on the production server that has the value of the secret token of your GitHub hook.

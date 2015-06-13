@@ -31,7 +31,7 @@ class GithubHookListener {
 
   listen() async {
     io
-        .serve(handleGitHubHooks, '0.0.0.0', config['listeningPort'])
+        .serve(handleGitHubHooks, config['listeningHost'], config['listeningPort'])
         .then((server) {
       print('Serving at http://${server.address.host}:${server.port}');
     });

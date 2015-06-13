@@ -13,6 +13,9 @@ class ConfigLoader {
       assert(config["serverPath"] != null);
       assert(config["serverFileName"] != null);
       assert(config["gitTarget"] != null);
+      if (config['listeningHost'] == null) {
+        config['listeningHost'] = '0.0.0.0';
+      }
       print("Loaded config successfully");
       return config;
     });

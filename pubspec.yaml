@@ -1,4 +1,4 @@
-name: poker_planning_webhook
+name: dart_app_deployer
 version: 0.0.1
 description: A daemon that listens to GitHub push webhook and that auto-redeploys the app.
 dependencies:
