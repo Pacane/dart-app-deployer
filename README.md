@@ -28,7 +28,7 @@ clientHostname: 0.0.0.0
 * Create an environment variable named `GITHUB_TOKEN` on the production server that has the value of the secret token of your GitHub hook.
 
 ##Running it
-On the production server, checkout this project and run `dart -c --enable-async hook.dart`. A daemon will:
+On the production server, checkout this project and run `dart hook.dart`. A daemon will:
 
 * listen to GitHub `POST` requests
 * see if it matches GitHub's signature
