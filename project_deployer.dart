@@ -91,8 +91,8 @@ class ProjectDeployer {
 
   deployClient() async {
     removeOldBuildFiles();
-    await buildWebsite();
+//    await buildWebsite();
     removeOldWebsiteFiles();
-    await deployNewSite();
+//    await deployNewSite();
   }
 }
