@@ -87,7 +87,8 @@ class ProjectDeployer {
       if (entity is File) {
         copy(entity, websiteDirectory);
       } else {
-        copy(entity, new Directory(entity.path.replaceAll('$clientPath/build/web', websitePath)));
+        copy(entity, new Directory(
+            entity.path.replaceAll('$clientPath/build/web', websitePath)));
       }
     }
   }

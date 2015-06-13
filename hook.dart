@@ -15,7 +15,8 @@ main() async {
   assert(environmentChecker.githubToken != null);
 
   ProjectDeployer deployer = new ProjectDeployer(config);
-  GithubHookListener hookListener = new GithubHookListener(environmentChecker, config, deployer);
+  GithubHookListener hookListener =
+      new GithubHookListener(environmentChecker, config, deployer);
 
   Application app = new Application(hookListener);
 
