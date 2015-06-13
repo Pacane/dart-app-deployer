@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:convert' show UTF8;
 import 'dart:async';
+import 'package:grinder/grinder_files.dart';
 
 class ProjectDeployer {
   Map config;
@@ -79,9 +80,12 @@ class ProjectDeployer {
 
   Future deployNewSite() async {
     print("Deploying new site");
-    ProcessResult result = await Process.run(
-        "cp", ['$clientPath/build/web/*', '$websitePath', '-r']);
-    showLogsForProcessResult(result);
+    var tree = new Directory('$clientPath/build/web').listSync();
+    var websiteDirectory = new Directory('$websitePath');
+
+    for (FileSystemEntity entity in tree) {
+      copy(entity, websiteDirectory);
+    }
   }
 
   Future removeOldWebsiteFiles() async {
