@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:convert' show UTF8;
 import 'dart:async';
+import 'package:grinder/grinder_files.dart';
 
 class ProjectDeployer {
   Map config;
@@ -24,14 +25,16 @@ class ProjectDeployer {
   Future gitPull() async {
     print("Pulling changes");
 
-    ProcessResult result = await Process.run("git", ['pull'], workingDirectory: gitWorkingDir, runInShell: true);
+    ProcessResult result = await Process.run("git", ['pull'],
+        workingDirectory: gitWorkingDir, runInShell: true);
     showLogsForProcessResult(result);
   }
 
   Future gitReset() async {
     print("Resetting branch");
-    ProcessResult result =
-        await Process.run("git", ['reset', '--hard', 'origin/$gitTarget'], workingDirectory: gitWorkingDir);
+    ProcessResult result = await Process.run(
+        "git", ['reset', '--hard', 'origin/$gitTarget'],
+        workingDirectory: gitWorkingDir);
     showLogsForProcessResult(result);
   }
 
@@ -47,7 +50,8 @@ class ProjectDeployer {
 
   Future buildWebsite() async {
     print("Building website");
-    ProcessResult result = await Process.run("pub", ['build', '--mode=release'], workingDirectory: clientPath);
+    ProcessResult result = await Process.run("pub", ['build', '--mode=release'],
+        workingDirectory: clientPath);
     showLogsForProcessResult(result);
   }
 
@@ -59,7 +63,8 @@ class ProjectDeployer {
   }
 
   Future upgradeServerDependencies() async {
-    ProcessResult result = await Process.run("pub", ['upgrade'], workingDirectory: serverPath);
+    ProcessResult result =
+        await Process.run("pub", ['upgrade'], workingDirectory: serverPath);
     showLogsForProcessResult(result);
   }
 
@@ -67,27 +72,39 @@ class ProjectDeployer {
     killServerProcess();
 
     print("Starting server");
-    Process result = await Process.start("dart", ['$serverFileName'], workingDirectory: serverPath);
+    Process result = await Process.start("dart", ['$serverFileName'],
+        workingDirectory: serverPath);
     serverProcess = result;
     showLogs(result);
   }
 
   Future deployNewSite() async {
     print("Deploying new site");
-    ProcessResult result = await Process.run("cp", ['$clientPath/build/web/*', '$websitePath', '-r']);
-    showLogsForProcessResult(result);
+    var tree = new Directory('$clientPath/build/web').listSync();
+    var websiteDirectory = new Directory('$websitePath');
+
+    for (FileSystemEntity entity in tree) {
+      if (entity is File) {
+        copy(entity, websiteDirectory);
+      } else {
+        copy(entity, new Directory(entity.path.replaceAll('$clientPath/build/web', websitePath)));
+      }
+    }
   }
 
   Future removeOldWebsiteFiles() async {
     print("Removing old website files");
-    ProcessResult result = await Process.run("rm", ['-rf', '$websitePath/*']);
-    showLogsForProcessResult(result);
+    await for (FileSystemEntity node in new Directory('$websitePath').list()) {
+      node.delete(recursive: true);
+    }
   }
 
   Future removeOldBuildFiles() async {
     print("Removing old build files");
-    ProcessResult result = await Process.run("rm", ['-rf', '$clientPath/build/*']);
-    showLogsForProcessResult(result);
+    await for (FileSystemEntity node
+        in new Directory('$clientPath/build').list()) {
+      node.delete(recursive: true);
+    }
   }
 
   deployClient() async {
