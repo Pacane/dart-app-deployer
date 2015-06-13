@@ -21,10 +21,18 @@ class ProjectDeployer {
     websitePath = config["websitePath"];
   }
 
-  Future resetAndPullBranch() {
+  Future gitPull() async {
+    print("Pulling changes");
+
+    ProcessResult result = await Process.run("git", ['pull'], workingDirectory: gitWorkingDir, runInShell: true);
+    showLogsForProcessResult(result);
+  }
+
+  Future gitReset() async {
     print("Resetting branch");
-    return Process.run("bash", ["-c", "git pull && git reset --hard origin/$gitTarget"], workingDirectory: gitWorkingDir)
-    .then((process) => showLogsForProcessResult(process));
+    ProcessResult result =
+        await Process.run("git", ['reset', '--hard', 'origin/$gitTarget'], workingDirectory: gitWorkingDir);
+    showLogsForProcessResult(result);
   }
 
   void showLogs(Process process) {
@@ -37,9 +45,10 @@ class ProjectDeployer {
     print(processResult.stdout);
   }
 
-  Future buildWebsite() {
+  Future buildWebsite() async {
     print("Building website");
-    return Process.run("bash", ["-c", "pub build --mode=release"], workingDirectory : clientPath).then((process) => showLogsForProcessResult(process));
+    ProcessResult result = await Process.run("pub", ['build', '--mode=release'], workingDirectory: clientPath);
+    showLogsForProcessResult(result);
   }
 
   void killServerProcess() {
@@ -49,28 +58,30 @@ class ProjectDeployer {
     }
   }
 
-  Future upgradeServerDependencies() {
-    return Process.run("bash", ["-c", "pub upgrade"], workingDirectory: serverPath).then((process) => showLogsForProcessResult(process));
+  Future upgradeServerDependencies() async {
+    ProcessResult result = await Process.run("pub", ['upgrade'], workingDirectory: serverPath);
+    showLogsForProcessResult(result);
   }
 
-  Future startServer() {
+  Future startServer() async {
     killServerProcess();
 
     print("Starting server");
-    return Process.start("bash", ["-c", "dart $serverFileName"], workingDirectory : serverPath).then((Process process) {
-      serverProcess = process;
-      showLogs(process);
-    });
+    Process result = await Process.start("dart", ['$serverFileName'], workingDirectory: serverPath);
+    serverProcess = result;
+    showLogs(result);
   }
 
-  Future deployNewSite() {
+  Future deployNewSite() async {
     print("Deploying new site");
-    return Process.run("bash", ["-c", "cp $clientPath/build/web/* $websitePath -r"]).then((process) => showLogsForProcessResult(process));
+    ProcessResult result = await Process.run("cp", ['$clientPath/build/web/*', '$websitePath', '-r']);
+    showLogsForProcessResult(result);
   }
 
-  Future removeOldWebsiteFiles() {
+  Future removeOldWebsiteFiles() async {
     print("Removing old website files");
-    return Process.run("bash", ["-c", "rm -rf $websitePath/* -r"]).then((process) => showLogsForProcessResult(process));
+    ProcessResult result = await Process.run("rm", ['-rf', '$websitePath/*', '-r']);
+    showLogsForProcessResult(result);
   }
 
   deployClient() async {
