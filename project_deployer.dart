@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:convert' show UTF8;
 import 'dart:async';
+import 'package:grinder/grinder_files.dart';
 
 class ProjectDeployer {
   Map config;
@@ -78,22 +79,20 @@ class ProjectDeployer {
     showLogsForProcessResult(result);
   }
 
-  Future removeOldWebsiteFiles() async {
+  void removeOldWebsiteFiles() {
     print("Removing old website files");
-    ProcessResult result = await Process.run("rm", ['-rf', '$websitePath/*']);
-    showLogsForProcessResult(result);
+    delete(new Directory('$websitePath/*'));
   }
 
-  Future removeOldBuildFiles() async {
+  void removeOldBuildFiles() {
     print("Removing old build files");
-    ProcessResult result = await Process.run("rm", ['-rf', '$clientPath/build/*']);
-    showLogsForProcessResult(result);
+    delete(new Directory('$clientPath/build/*'));
   }
 
   deployClient() async {
-    await removeOldBuildFiles();
+    removeOldBuildFiles();
     await buildWebsite();
-    await removeOldWebsiteFiles();
+    removeOldWebsiteFiles();
     await deployNewSite();
   }
 }
