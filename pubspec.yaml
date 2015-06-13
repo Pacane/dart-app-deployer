@@ -6,3 +6,5 @@ dependencies:
   dart_config: any
   shelf: any
   grinder: any
+dev_dependencies:
+  test: any
