@@ -30,7 +30,7 @@ class GithubHookListener {
   bool wasPushOnMaster(String ref) => ref == 'refs/heads/$targetBranch';
 
   listen() async {
-    io.serve(handleGitHubHooks, '0.0.0.0', 6000).then((server) {
+    io.serve(handleGitHubHooks, '0.0.0.0', config['listeningPort']).then((server) {
       print('Serving at http://${server.address.host}:${server.port}');
     });
   }

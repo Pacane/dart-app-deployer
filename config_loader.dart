@@ -13,7 +13,6 @@ class ConfigLoader {
       assert(config["serverPath"] != null);
       assert(config["serverFileName"] != null);
       assert(config["gitTarget"] != null);
-      assert(config["clientHostname"] != null);
       print("Loaded config successfully");
       return config;
     });
