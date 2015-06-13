@@ -85,28 +85,25 @@ class ProjectDeployer {
     showLogsForProcessResult(result);
   }
 
-  void removeOldWebsiteFiles() {
+  Future removeOldWebsiteFiles() async {
     print("Removing old website files");
-    List<FileSystemEntity> tree = new Directory('$websitePath').listSync();
-
-    for (var node in tree) {
-      node.deleteSync(recursive: true);
+    await for (FileSystemEntity node in new Directory('$websitePath').list()) {
+      node.delete(recursive: true);
     }
   }
 
-  void removeOldBuildFiles() {
+  Future removeOldBuildFiles() async {
     print("Removing old build files");
-    List<FileSystemEntity> tree = new Directory('$clientPath/build').listSync();
-
-    for (var node in tree) {
-      node.deleteSync(recursive: true);
+    await for (FileSystemEntity node
+        in new Directory('$clientPath/build').list()) {
+      node.delete(recursive: true);
     }
   }
 
   deployClient() async {
-    removeOldBuildFiles();
-//    await buildWebsite();
-    removeOldWebsiteFiles();
-//    await deployNewSite();
+    await removeOldBuildFiles();
+    await buildWebsite();
+    await removeOldWebsiteFiles();
+    await deployNewSite();
   }
 }
