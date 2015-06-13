@@ -6,6 +6,7 @@ import 'dart:async';
 class ConfigLoader {
   Future<Map> loadConfig() {
     return Config.loadConfig().then((config) {
+      Map newConfig = new Map.from(config);
       assert(config["listeningPort"] != null);
       assert(config["gitWorkingDir"] != null);
       assert(config["clientPath"] != null);
@@ -14,10 +15,10 @@ class ConfigLoader {
       assert(config["serverFileName"] != null);
       assert(config["gitTarget"] != null);
       if (config['listeningHost'] == null) {
-        config['listeningHost'] = '0.0.0.0';
+        newConfig['listeningHost'] = '0.0.0.0';
       }
       print("Loaded config successfully");
-      return config;
+      return newConfig;
     });
   }
 }
