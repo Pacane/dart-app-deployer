@@ -5,6 +5,7 @@ import 'environment_checker.dart';
 import 'config_loader.dart';
 import 'github_hook_listener.dart';
 import 'project_deployer.dart';
+import 'dart:io';
 
 main() async {
   ConfigLoader configLoader = new ConfigLoader();
@@ -19,4 +20,12 @@ main() async {
   Application app = new Application(hookListener);
 
   app.run();
+
+  ProcessSignal.SIGINT.watch().listen((ProcessSignal signal) {
+    deployer.killServerProcess();
+  });
+
+  ProcessSignal.SIGTERM.watch().listen((ProcessSignal signal) {
+    deployer.killServerProcess();
+  });
 }
