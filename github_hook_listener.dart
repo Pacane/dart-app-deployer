@@ -30,7 +30,9 @@ class GithubHookListener {
   bool wasPushOnMaster(String ref) => ref == 'refs/heads/$targetBranch';
 
   listen() async {
-    io.serve(handleGitHubHooks, '0.0.0.0', config['listeningPort']).then((server) {
+    io
+        .serve(handleGitHubHooks, '0.0.0.0', config['listeningPort'])
+        .then((server) {
       print('Serving at http://${server.address.host}:${server.port}');
     });
   }
@@ -44,11 +46,13 @@ class GithubHookListener {
       var payload = JSON.decode(new String.fromCharCodes(data));
       if (wasPushOnMaster(payload['ref'])) {
         print("Hooked on push on $targetBranch");
-        deployer.gitPull().then((_) => deployer
-            .gitReset()
-            .then((_) => deployer.upgradeServerDependencies())
-            .then((_) => deployer.startServer())
-            .then((_) => deployer.deployClient()));
+        new Future(() async {
+          await deployer.gitPull();
+          await deployer.gitReset();
+          deployer.deployClient();
+          await deployer.upgradeServerDependencies();
+          deployer.startServer();
+        });
       }
     }
 

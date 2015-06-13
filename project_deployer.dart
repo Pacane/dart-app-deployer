@@ -80,11 +80,18 @@ class ProjectDeployer {
 
   Future removeOldWebsiteFiles() async {
     print("Removing old website files");
-    ProcessResult result = await Process.run("rm", ['-rf', '$websitePath/*', '-r']);
+    ProcessResult result = await Process.run("rm", ['-rf', '$websitePath/*']);
+    showLogsForProcessResult(result);
+  }
+
+  Future removeOldBuildFiles() async {
+    print("Removing old build files");
+    ProcessResult result = await Process.run("rm", ['-rf', '$clientPath/build/*']);
     showLogsForProcessResult(result);
   }
 
   deployClient() async {
+    await removeOldBuildFiles();
     await buildWebsite();
     await removeOldWebsiteFiles();
     await deployNewSite();
