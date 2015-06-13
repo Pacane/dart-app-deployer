@@ -23,9 +23,13 @@ main() async {
 
   ProcessSignal.SIGINT.watch().listen((ProcessSignal signal) {
     deployer.killServerProcess();
+
+    exit(0);
   });
 
   ProcessSignal.SIGTERM.watch().listen((ProcessSignal signal) {
     deployer.killServerProcess();
+
+    exit(0);
   });
 }
