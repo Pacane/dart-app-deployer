@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:convert' show UTF8;
 import 'dart:async';
-import 'package:grinder/grinder_files.dart';
 
 class ProjectDeployer {
   Map config;
