@@ -12,6 +12,3 @@ main() {
     deployer.deployNewSite();
   });
 }
-
-
-
